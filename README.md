@@ -16,8 +16,8 @@ A full-stack web application for managing and visualizing air quality monitoring
 ## Tech Stack
 
 ### Backend
-- C# / ASP.NET Core 8.0
-- Entity Framework Core with SQLite
+- C# / ASP.NET Core 9.0
+- Entity Framework Core with PostgreSQL
 - JWT Authentication
 - BCrypt for password hashing
 
@@ -57,7 +57,7 @@ air-quality-map/
 
 ### Prerequisites
 - Docker and Docker Compose (recommended)
-- OR Node.js 20+ and .NET 8.0 SDK (for local development)
+- OR Node.js 20+ and .NET 9.0 SDK (for local development)
 
 ### Running with Docker (Recommended)
 

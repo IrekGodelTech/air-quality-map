@@ -1,6 +1,25 @@
 version: '3.8'
 
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: airquality-postgres
+    environment:
+      - POSTGRES_DB=airquality
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - airquality-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   backend:
     build:
       context: ./backend/AirQualityMap.Api
@@ -11,12 +30,13 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
-      - ConnectionStrings__DefaultConnection=Data Source=/app/data/airquality.db
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=airquality;Username=postgres;Password=postgres
       - Jwt__Key=YourSuperSecretKeyThatIsAtLeast32CharactersLong!
       - Jwt__Issuer=AirQualityMapApi
       - Jwt__Audience=AirQualityMapClient
-    volumes:
-      - backend-data:/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
       - airquality-network
 
@@ -35,7 +55,7 @@ services:
       - airquality-network
 
 volumes:
-  backend-data:
+  postgres-data:
 
 networks:
   airquality-network:
