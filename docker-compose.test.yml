@@ -1,0 +1,20 @@
+services:
+  frontend-tests:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile.test
+    stdin_open: true
+    tty: true
+    restart: "no"
+
+  backend-tests:
+    image: mcr.microsoft.com/dotnet/sdk:9.0
+    working_dir: /src
+    command: dotnet test AirQualityMap.Api.Tests/AirQualityMap.Api.Tests.csproj
+    volumes:
+      - ./backend:/src
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    stdin_open: true
+    tty: true
+    restart: "no"

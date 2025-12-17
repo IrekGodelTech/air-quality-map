@@ -79,6 +79,14 @@ docker compose up --build
 - PostgreSQL: localhost:5432
 - pgAdmin: http://localhost:5050
 
+4. Running Tests:
+```bash
+docker compose -f docker-compose.test.yml up --build --abort-on-container-exit
+# Or run specific tests:
+docker compose -f docker-compose.test.yml up frontend-tests
+docker compose -f docker-compose.test.yml up backend-tests
+```
+
 ### Running Locally for Development
 
 #### Backend
@@ -86,6 +94,7 @@ docker compose up --build
 cd backend/AirQualityMap.Api
 dotnet restore
 dotnet run
+dotnet test # to run backend tests
 ```
 
 Backend will be available at http://localhost:5000
@@ -95,6 +104,7 @@ Backend will be available at http://localhost:5000
 cd frontend
 npm install
 npm run dev
+npm run test # to run frontend tests
 ```
 
 Frontend will be available at http://localhost:5173
