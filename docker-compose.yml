@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend/AirQualityMap.Api
+      dockerfile: Dockerfile
+    container_name: airquality-backend
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Data Source=/app/data/airquality.db
+      - Jwt__Key=YourSuperSecretKeyThatIsAtLeast32CharactersLong!
+      - Jwt__Issuer=AirQualityMapApi
+      - Jwt__Audience=AirQualityMapClient
+    volumes:
+      - backend-data:/app/data
+    networks:
+      - airquality-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: airquality-frontend
+    ports:
+      - "3000:80"
+    environment:
+      - VITE_API_URL=http://localhost:5000/api
+    depends_on:
+      - backend
+    networks:
+      - airquality-network
+
+volumes:
+  backend-data:
+
+networks:
+  airquality-network:
+    driver: bridge
