@@ -1,0 +1,24 @@
+name: Build Backend
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: cd backend/AirQualityMap.Api && dotnet restore
+
+      - name: Build
+        run: cd backend/AirQualityMap.Api && dotnet build --no-restore --configuration Release
+
+      - name: Check for warnings
+        run: cd backend/AirQualityMap.Api && dotnet build --no-restore --configuration Release -p:TreatWarningsAsErrors=false

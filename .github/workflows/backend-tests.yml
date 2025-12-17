@@ -1,0 +1,21 @@
+name: Backend Tests
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: cd backend/AirQualityMap.Api.Tests && dotnet restore
+
+      - name: Run tests
+        run: cd backend/AirQualityMap.Api.Tests && dotnet test --verbosity normal --no-restore
