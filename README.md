@@ -134,6 +134,17 @@ Frontend will be available at http://localhost:5173
 ### Frontend (.env)
 - `VITE_API_URL` - Backend API URL (default: http://localhost:5000/api)
 
+### Database (PostgreSQL)
+- `POSTGRES_DB` - Database name
+- `POSTGRES_USER` - Database user
+- `POSTGRES_PASSWORD` - Database password
+
+**⚠️ Security Note:** The default PostgreSQL credentials in `docker-compose.yml` are for development only. For production deployments:
+- Change the default passwords
+- Use Docker secrets or environment variables for sensitive data
+- Enable SSL/TLS for database connections
+- Consider using managed database services
+
 ## Security Features
 
 - Password hashing with BCrypt
@@ -141,6 +152,7 @@ Frontend will be available at http://localhost:5173
 - CORS configuration for frontend access
 - User authorization for station management
 - Input validation on both frontend and backend
+- PostgreSQL with parameterized queries to prevent SQL injection
 
 ## License
 

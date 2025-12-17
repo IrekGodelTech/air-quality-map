@@ -5,6 +5,8 @@ services:
     image: postgres:16-alpine
     container_name: airquality-postgres
     environment:
+      # WARNING: Change these credentials for production!
+      # Use Docker secrets or environment variables for sensitive data
       - POSTGRES_DB=airquality
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
