@@ -69,13 +69,15 @@ cd air-quality-map
 
 2. Start the application:
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 3. Access the application:
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:5000
-- API Documentation (Swagger): http://localhost:5000/swagger
+- Swagger: http://localhost:5000/swagger
+- PostgreSQL: localhost:5432
+- pgAdmin: http://localhost:5050
 
 ### Running Locally for Development
 
