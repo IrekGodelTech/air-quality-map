@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: airquality-postgres
+    environment:
+      # WARNING: Change these credentials for production!
+      # Use Docker secrets or environment variables for sensitive data
+      - POSTGRES_DB=airquality
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - airquality-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend/AirQualityMap.Api
+      dockerfile: Dockerfile
+    container_name: airquality-backend
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=airquality;Username=postgres;Password=postgres
+      - Jwt__Key=YourSuperSecretKeyThatIsAtLeast32CharactersLong!
+      - Jwt__Issuer=AirQualityMapApi
+      - Jwt__Audience=AirQualityMapClient
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - airquality-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: airquality-frontend
+    ports:
+      - "3000:80"
+    environment:
+      - VITE_API_URL=http://localhost:5000/api
+    depends_on:
+      - backend
+    networks:
+      - airquality-network
+
+volumes:
+  postgres-data:
+
+networks:
+  airquality-network:
+    driver: bridge

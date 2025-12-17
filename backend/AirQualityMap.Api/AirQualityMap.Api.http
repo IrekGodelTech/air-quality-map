@@ -1,0 +1,6 @@
+@AirQualityMap.Api_HostAddress = http://localhost:5211
+
+GET {{AirQualityMap.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
