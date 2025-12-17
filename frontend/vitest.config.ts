@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   test: {
     globals: true,
-    environment: "happy-dom",
+    environment: "jsdom",
     setupFiles: ["./src/test/setup.ts"],
     coverage: {
       provider: "v8",
@@ -22,6 +22,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "axios": path.resolve(__dirname, "./src/__mocks__/axios.ts"),
     },
   },
 });

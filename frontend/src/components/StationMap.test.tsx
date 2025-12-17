@@ -1,11 +1,29 @@
 ﻿import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "../test-utils";
+import { render, screen } from "../test/test-utils";
 import StationMap from "./StationMap";
 import { mockStations } from "../test/mock-data";
 
 // Mock Leaflet
 vi.mock("leaflet", () => ({
   default: {
+    icon: vi.fn((options) => ({
+      iconUrl: options.iconUrl,
+      shadowUrl: options.shadowUrl,
+      iconSize: options.iconSize,
+      shadowSize: options.shadowSize,
+      iconAnchor: options.iconAnchor,
+      shadowAnchor: options.shadowAnchor,
+      popupAnchor: options.popupAnchor,
+    })),
+    Icon: {
+      Default: {
+        prototype: {
+          options: {},
+          _getIconUrl: vi.fn(),
+        },
+        mergeOptions: vi.fn(),
+      },
+    },
     map: vi.fn(() => ({
       setView: vi.fn(),
       on: vi.fn(),
@@ -24,8 +42,8 @@ vi.mock("leaflet", () => ({
 vi.mock("react-leaflet", () => ({
   MapContainer: ({ children }: any) => <div data-testid="map-container">{children}</div>,
   TileLayer: () => <div data-testid="tile-layer" />,
-  Marker: ({ position }: any) => (
-    <div data-testid={`marker-${position[0]}-${position[1]}`} />
+  Marker: ({ position, children }: any) => (
+    <div data-testid={`marker-${position[0]}-${position[1]}`}>{children}</div>
   ),
   Popup: ({ children }: any) => <div data-testid="popup">{children}</div>,
 }));

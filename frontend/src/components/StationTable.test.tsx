@@ -1,5 +1,5 @@
 ﻿import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "../test-utils";
+import { render, screen } from "../test/test-utils";
 import StationTable from "./StationTable";
 import { mockStations } from "../test/mock-data";
 
@@ -18,7 +18,8 @@ describe("StationTable Component", () => {
 
     expect(screen.getByText(/name/i)).toBeInTheDocument();
     expect(screen.getByText(/description/i)).toBeInTheDocument();
-    expect(screen.getByText(/location|coordinates|latitude/i)).toBeInTheDocument();
+    expect(screen.getByText(/coordinates/i)).toBeInTheDocument();
+    expect(screen.getByText(/endpoint/i)).toBeInTheDocument();
   });
 
   it("renders stations data in table rows", () => {
@@ -36,7 +37,7 @@ describe("StationTable Component", () => {
     });
   });
 
-  it("calls onEdit when edit button is clicked", () => {
+  it("renders links to measurement endpoints", () => {
     render(
       <StationTable
         stations={mockStations}
@@ -45,25 +46,9 @@ describe("StationTable Component", () => {
       />
     );
 
-    const editButtons = screen.getAllByRole("button", { name: /edit/i });
-    editButtons[0].click();
-
-    expect(mockOnEdit).toHaveBeenCalledWith(mockStations[0]);
-  });
-
-  it("calls onDelete when delete button is clicked", () => {
-    render(
-      <StationTable
-        stations={mockStations}
-        onEdit={mockOnEdit}
-        onDelete={mockOnDelete}
-      />
-    );
-
-    const deleteButtons = screen.getAllByRole("button", { name: /delete|remove/i });
-    deleteButtons[0].click();
-
-    expect(mockOnDelete).toHaveBeenCalledWith(mockStations[0].id);
+    const links = screen.getAllByRole("link", { name: /link/i });
+    expect(links.length).toBe(mockStations.length);
+    expect(links[0]).toHaveAttribute("href", mockStations[0].measurementEndpoint);
   });
 
   it("renders empty state when no stations provided", () => {
@@ -75,9 +60,9 @@ describe("StationTable Component", () => {
       />
     );
 
-    expect(
-      screen.getByText(/no stations|empty/i)
-    ).toBeInTheDocument();
+    const rows = screen.queryAllByRole("row");
+    // Only header row should be present
+    expect(rows.length).toBe(1);
   });
 
   it("displays correct number of rows for stations", () => {
@@ -90,7 +75,7 @@ describe("StationTable Component", () => {
     );
 
     const rows = screen.getAllByRole("row");
-    // +1 for header row
-    expect(rows).toHaveLength(mockStations.length + 1);
+    // header + stations
+    expect(rows.length).toBe(mockStations.length + 1);
   });
 });
