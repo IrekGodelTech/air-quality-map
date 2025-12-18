@@ -77,8 +77,8 @@ const DashboardPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: 'var(--bg-color)' }}>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px', borderBottom: '1px solid var(--border-color)' }}>
         <h1>Air Quality Stations</h1>
         <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
           <button
@@ -107,14 +107,15 @@ const DashboardPage: React.FC = () => {
         </div>
       </header>
 
-      {error && (
-        <div style={{ backgroundColor: '#f8d7da', color: '#721c24', padding: '10px', marginBottom: '20px', borderRadius: '4px' }}>
-          {error}
-        </div>
-      )}
+      <main style={{ flex: 1, padding: '20px', maxWidth: '100%' }}>
+        {error && (
+          <div style={{ backgroundColor: '#f8d7da', color: '#721c24', padding: '10px', marginBottom: '20px', borderRadius: '4px' }}>
+            {error}
+          </div>
+        )}
 
-      <div style={{ marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
-        <button 
+        <div style={{ marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <button 
           onClick={() => setView('table')}
           style={{ 
             padding: '10px 20px', 
@@ -149,27 +150,32 @@ const DashboardPage: React.FC = () => {
         )}
       </div>
 
-      {showForm && (
-        <StationForm
-          station={editingStation}
-          onSave={handleSaveStation}
-          onCancel={() => {
-            setShowForm(false);
-            setEditingStation(null);
-          }}
-        />
-      )}
+        {showForm && (
+          <StationForm
+            station={editingStation}
+            onSave={handleSaveStation}
+            onCancel={() => {
+              setShowForm(false);
+              setEditingStation(null);
+            }}
+          />
+        )}
 
-      {view === 'table' ? (
-        <StationTable
-          stations={stations}
-          onEdit={handleEditStation}
-          onDelete={handleDeleteStation}
-          isAuthenticated={isAuthenticated}
-        />
-      ) : (
-        <StationMap stations={stations} />
-      )}
+        {view === 'table' ? (
+          <div style={{ overflowX: 'auto' }}>
+            <StationTable
+              stations={stations}
+              onEdit={handleEditStation}
+              onDelete={handleDeleteStation}
+              isAuthenticated={isAuthenticated}
+            />
+          </div>
+        ) : (
+          <div style={{ borderRadius: '4px', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <StationMap stations={stations} />
+          </div>
+        )}
+      </main>
     </div>
   );
 };

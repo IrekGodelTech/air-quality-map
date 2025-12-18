@@ -22,43 +22,45 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '50px auto', padding: '20px' }}>
-      <h2>Login</h2>
-      {error && <div style={{ color: 'red', marginBottom: '10px' }}>{error}</div>}
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '15px' }}>
-          <label htmlFor="username" style={{ display: 'block', marginBottom: '5px' }}>Username</label>
-          <input
-            id="username"
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-            style={{ width: '100%', padding: '8px' }}
-          />
-        </div>
-        <div style={{ marginBottom: '15px' }}>
-          <label htmlFor="password" style={{ display: 'block', marginBottom: '5px' }}>Password</label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            style={{ width: '100%', padding: '8px' }}
-          />
-        </div>
-        <button type="submit" style={{ width: '100%', padding: '10px', marginBottom: '10px' }}>
-          Login
-        </button>
-        <button 
-          type="button" 
-          onClick={() => navigate('/register')}
-          style={{ width: '100%', padding: '10px', backgroundColor: '#6c757d' }}
-        >
-          Register
-        </button>
-      </form>
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', padding: '20px', backgroundColor: 'var(--bg-color)' }}>
+      <div style={{ maxWidth: '400px', width: '100%', padding: '30px', border: '1px solid var(--border-color)', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+        <h2 style={{ marginBottom: '20px', textAlign: 'center' }}>Login</h2>
+        {error && <div style={{ color: '#dc3545', marginBottom: '15px', padding: '10px', backgroundColor: '#f8d7da', borderRadius: '4px', textAlign: 'center' }}>{error}</div>}
+        <form onSubmit={handleSubmit}>
+          <div style={{ marginBottom: '15px' }}>
+            <label htmlFor="username" style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Username</label>
+            <input
+              id="username"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              style={{ width: '100%', padding: '10px', boxSizing: 'border-box', border: '1px solid var(--border-color)', borderRadius: '4px', backgroundColor: 'var(--bg-color)', color: 'var(--text-color)' }}
+            />
+          </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label htmlFor="password" style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Password</label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              style={{ width: '100%', padding: '10px', boxSizing: 'border-box', border: '1px solid var(--border-color)', borderRadius: '4px', backgroundColor: 'var(--bg-color)', color: 'var(--text-color)' }}
+            />
+          </div>
+          <button type="submit" style={{ width: '100%', padding: '12px', marginBottom: '10px', backgroundColor: '#007bff', color: 'white', fontWeight: '500' }}>
+            Login
+          </button>
+          <button 
+            type="button" 
+            onClick={() => navigate('/register')}
+            style={{ width: '100%', padding: '12px', backgroundColor: '#6c757d', color: 'white', fontWeight: '500' }}
+          >
+            Register
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
