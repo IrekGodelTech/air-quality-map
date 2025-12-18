@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { useNavigate } from 'react-router-dom';
 import type { Station } from '../types';
 import { stationsApi } from '../services/api';
@@ -14,6 +15,7 @@ const DashboardPage: React.FC = () => {
   const [editingStation, setEditingStation] = useState<Station | null>(null);
   const [error, setError] = useState('');
   const { user, isAuthenticated, logout } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -78,7 +80,22 @@ const DashboardPage: React.FC = () => {
     <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <h1>Air Quality Stations</h1>
-        <div>
+        <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+          <button
+            onClick={toggleTheme}
+            title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            style={{
+              padding: '8px 12px',
+              backgroundColor: isDark ? '#ffc107' : '#1a1a1a',
+              color: isDark ? '#000' : '#fff',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '16px',
+            }}
+          >
+            {isDark ? '☀️' : '🌙'}
+          </button>
           {isAuthenticated ? (
             <>
               <span style={{ marginRight: '15px' }}>Welcome, {user?.username}!</span>
