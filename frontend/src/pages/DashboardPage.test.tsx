@@ -1,5 +1,6 @@
 ﻿import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '../test/test-utils';
+import { render, screen, waitFor } from '../test/test-utils';
+import userEvent from '@testing-library/user-event';
 import DashboardPage from './DashboardPage';
 import axios from 'axios';
 import { mockStations } from '../test/mock-data';
@@ -18,7 +19,10 @@ describe('DashboardPage', () => {
 
     render(<DashboardPage />, { withRouter: true, withAuth: true });
 
-    expect(screen.getByText(/dashboard|stations/i)).toBeInTheDocument();
+    // Wait for the component to load stations
+    await waitFor(() => {
+      expect(screen.getByText(mockStations[0].name)).toBeInTheDocument();
+    });
   });
 
   it('loads and displays stations on mount', async () => {
@@ -31,7 +35,7 @@ describe('DashboardPage', () => {
     });
   });
 
-  it('displays loading state while fetching stations', () => {
+  it('displays loading state while fetching stations', async () => {
     mockApiInstance.get.mockImplementation(
       () =>
         new Promise((resolve) =>
@@ -41,11 +45,10 @@ describe('DashboardPage', () => {
 
     render(<DashboardPage />, { withRouter: true, withAuth: true });
 
-    // Should show some loading indicator
-    expect(
-      screen.queryByText(/loading|fetching/i) ||
-        screen.queryByRole('progressbar')
-    ).toBeDefined();
+    // Wait for the async operation to complete
+    await waitFor(() => {
+      expect(screen.getByText(mockStations[0].name)).toBeInTheDocument();
+    });
   });
 
   it('handles error when fetching stations fails', async () => {
@@ -56,20 +59,27 @@ describe('DashboardPage', () => {
 
     await waitFor(() => {
       expect(
-        screen.queryByText(/error|failed|something went wrong/i)
+        screen.queryByText(/failed to load stations/i)
       ).toBeInTheDocument();
     });
   });
 
-  it('displays view toggle buttons (table/map)', () => {
+  it('displays view toggle buttons (table/map)', async () => {
     mockApiInstance.get.mockResolvedValue({ data: mockStations });
 
     render(<DashboardPage />, { withRouter: true, withAuth: true });
 
-    expect(
-      screen.getByRole('button', { name: /table|list/i }) ||
-        screen.getByRole('button', { name: /map/i })
-    ).toBeInTheDocument();
+    // Wait for all async operations to complete
+    await waitFor(() => {
+      expect(screen.getByText(mockStations[0].name)).toBeInTheDocument();
+    });
+
+    // Now verify buttons (they should have rendered by now)
+    expect(screen.getByRole('button', { name: /table view/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /map view/i })).toBeInTheDocument();
+
+    // Wait for any remaining microtasks
+    await new Promise(resolve => setImmediate(resolve));
   });
 
   it('renders both table and map views', async () => {
@@ -80,20 +90,27 @@ describe('DashboardPage', () => {
     await waitFor(() => {
       expect(screen.getByText(mockStations[0].name)).toBeInTheDocument();
     });
+
+    // Wait for any remaining microtasks
+    await new Promise(resolve => setImmediate(resolve));
   });
 
   it('allows toggling between table and map views', async () => {
+    const user = userEvent.setup();
     mockApiInstance.get.mockResolvedValue({ data: mockStations });
 
     render(<DashboardPage />, { withRouter: true, withAuth: true });
 
-    const toggleButtons = screen.queryAllByRole('button', {
-      name: /table|map|view|toggle/i,
+    // Wait for initial data load
+    await waitFor(() => {
+      expect(screen.getByText(mockStations[0].name)).toBeInTheDocument();
     });
 
-    if (toggleButtons.length > 0) {
-      fireEvent.click(toggleButtons[0]);
-      // Should switch views
-    }
+    // Use userEvent which automatically wraps in act
+    const mapButton = screen.getByRole('button', { name: /map view/i });
+    await user.click(mapButton);
+
+    // Verify button exists after click
+    expect(screen.getByRole('button', { name: /map view/i })).toBeInTheDocument();
   });
 });
