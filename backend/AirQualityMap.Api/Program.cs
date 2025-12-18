@@ -71,6 +71,31 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IStationService, StationService>();
 builder.Services.AddScoped<IMeasurementService, MeasurementService>();
+builder.Services.AddScoped<IExternalMeasurementService, ExternalMeasurementService>();
+
+// Register HTTP client for external measurement fetching
+if (builder.Environment.IsDevelopment())
+{
+    // In development, allow insecure SSL connections for testing with self-signed certificates
+    builder.Services.ConfigureHttpClientDefaults(http =>
+    {
+        http.ConfigurePrimaryHttpMessageHandler(() =>
+        {
+            var handler = new HttpClientHandler();
+            handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
+            return handler;
+        });
+    });
+    builder.Services.AddHttpClient();
+}
+else
+{
+    // In production, use standard HttpClient with proper certificate validation
+    builder.Services.AddHttpClient();
+}
+
+// Register hosted background service for periodic measurement polling
+builder.Services.AddHostedService<MeasurementPollingHostedService>();
 
 // Configure CORS
 builder.Services.AddCors(options =>
@@ -91,6 +116,9 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    
+    var logger = app.Services.GetRequiredService<ILogger<Program>>();
+    logger.LogWarning("⚠️ Running in Development mode - SSL certificate validation is disabled for external HTTP requests. This is insecure and should never be used in production.");
 }
 
 // Apply migrations
