@@ -11,6 +11,7 @@ public class AppDbContext : DbContext
 
     public DbSet<User> Users { get; set; }
     public DbSet<AirQualityStation> Stations { get; set; }
+    public DbSet<Measurement> Measurements { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -29,6 +30,15 @@ public class AppDbContext : DbContext
             entity.HasOne(e => e.User)
                 .WithMany(u => u.Stations)
                 .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Measurement>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasOne(e => e.Station)
+                .WithMany(s => s.Measurements)
+                .HasForeignKey(e => e.StationId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
     }

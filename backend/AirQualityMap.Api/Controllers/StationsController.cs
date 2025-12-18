@@ -1,10 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using AirQualityMap.Api.Data;
 using AirQualityMap.Api.DTOs;
-using AirQualityMap.Api.Models;
+using AirQualityMap.Api.Services.Contracts;
 
 namespace AirQualityMap.Api.Controllers;
 
@@ -12,52 +10,30 @@ namespace AirQualityMap.Api.Controllers;
 [Route("api/[controller]")]
 public class StationsController : ControllerBase
 {
-    private readonly AppDbContext _context;
+    private readonly IStationService _stationService;
 
-    public StationsController(AppDbContext context)
+    public StationsController(IStationService stationService)
     {
-        _context = context;
+        _stationService = stationService;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<StationDto>>> GetStations()
     {
-        var stations = await _context.Stations
-            .Select(s => new StationDto
-            {
-                Id = s.Id,
-                Name = s.Name,
-                Description = s.Description,
-                Latitude = s.Latitude,
-                Longitude = s.Longitude,
-                MeasurementEndpoint = s.MeasurementEndpoint,
-                CreatedAt = s.CreatedAt
-            })
-            .ToListAsync();
-
+        var stations = await _stationService.GetAllStationsAsync();
         return Ok(stations);
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<StationDto>> GetStation(int id)
     {
-        var station = await _context.Stations.FindAsync(id);
-
-        if (station == null)
+        var station = await _stationService.GetStationByIdAsync(id);
+        if (station is null)
         {
             return NotFound();
         }
 
-        return Ok(new StationDto
-        {
-            Id = station.Id,
-            Name = station.Name,
-            Description = station.Description,
-            Latitude = station.Latitude,
-            Longitude = station.Longitude,
-            MeasurementEndpoint = station.MeasurementEndpoint,
-            CreatedAt = station.CreatedAt
-        });
+        return Ok(station);
     }
 
     [Authorize]
@@ -65,28 +41,13 @@ public class StationsController : ControllerBase
     public async Task<ActionResult<StationDto>> CreateStation(StationDto dto)
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (userIdClaim == null || !int.TryParse(userIdClaim, out var userId))
+        if (userIdClaim is null || !int.TryParse(userIdClaim, out var userId))
         {
             return Unauthorized();
         }
 
-        var station = new AirQualityStation
-        {
-            Name = dto.Name,
-            Description = dto.Description,
-            Latitude = dto.Latitude,
-            Longitude = dto.Longitude,
-            MeasurementEndpoint = dto.MeasurementEndpoint,
-            UserId = userId
-        };
-
-        _context.Stations.Add(station);
-        await _context.SaveChangesAsync();
-
-        dto.Id = station.Id;
-        dto.CreatedAt = station.CreatedAt;
-
-        return CreatedAtAction(nameof(GetStation), new { id = station.Id }, dto);
+        var station = await _stationService.CreateStationAsync(dto, userId);
+        return CreatedAtAction(nameof(GetStation), new { id = station.Id }, station);
     }
 
     [Authorize]
@@ -94,30 +55,16 @@ public class StationsController : ControllerBase
     public async Task<IActionResult> UpdateStation(int id, StationDto dto)
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (userIdClaim == null || !int.TryParse(userIdClaim, out var userId))
+        if (userIdClaim is null || !int.TryParse(userIdClaim, out var userId))
         {
             return Unauthorized();
         }
 
-        var station = await _context.Stations.FindAsync(id);
-
-        if (station == null)
-        {
-            return NotFound();
-        }
-
-        if (station.UserId != userId)
+        var updated = await _stationService.UpdateStationAsync(id, dto, userId);
+        if (updated is null)
         {
             return Forbid();
         }
-
-        station.Name = dto.Name;
-        station.Description = dto.Description;
-        station.Latitude = dto.Latitude;
-        station.Longitude = dto.Longitude;
-        station.MeasurementEndpoint = dto.MeasurementEndpoint;
-
-        await _context.SaveChangesAsync();
 
         return NoContent();
     }
@@ -127,25 +74,16 @@ public class StationsController : ControllerBase
     public async Task<IActionResult> DeleteStation(int id)
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (userIdClaim == null || !int.TryParse(userIdClaim, out var userId))
+        if (userIdClaim is null || !int.TryParse(userIdClaim, out var userId))
         {
             return Unauthorized();
         }
 
-        var station = await _context.Stations.FindAsync(id);
-
-        if (station == null)
-        {
-            return NotFound();
-        }
-
-        if (station.UserId != userId)
+        var deleted = await _stationService.DeleteStationAsync(id, userId);
+        if (!deleted)
         {
             return Forbid();
         }
-
-        _context.Stations.Remove(station);
-        await _context.SaveChangesAsync();
 
         return NoContent();
     }

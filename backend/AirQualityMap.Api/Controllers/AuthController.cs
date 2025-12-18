@@ -1,10 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using AirQualityMap.Api.Data;
 using AirQualityMap.Api.DTOs;
-using AirQualityMap.Api.Models;
-using AirQualityMap.Api.Services;
-using BCrypt.Net;
+using AirQualityMap.Api.Services.Contracts;
 
 namespace AirQualityMap.Api.Controllers;
 
@@ -12,54 +8,41 @@ namespace AirQualityMap.Api.Controllers;
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
-    private readonly AppDbContext _context;
+    private readonly IUserService _userService;
     private readonly ITokenService _tokenService;
 
-    public AuthController(AppDbContext context, ITokenService tokenService)
+    public AuthController(IUserService userService, ITokenService tokenService)
     {
-        _context = context;
+        _userService = userService;
         _tokenService = tokenService;
     }
 
     [HttpPost("register")]
     public async Task<ActionResult<AuthResponseDto>> Register(RegisterDto dto)
     {
-        if (await _context.Users.AnyAsync(u => u.Username == dto.Username))
+        try
         {
-            return BadRequest(new { message = "Username already exists" });
+            var user = await _userService.CreateUserAsync(dto.Username, dto.Email, dto.Password);
+            var token = _tokenService.GenerateToken(user);
+
+            return Ok(new AuthResponseDto
+            {
+                Token = token,
+                Username = user.Username,
+                Email = user.Email
+            });
         }
-
-        if (await _context.Users.AnyAsync(u => u.Email == dto.Email))
+        catch (InvalidOperationException ex)
         {
-            return BadRequest(new { message = "Email already exists" });
+            return BadRequest(new { message = ex.Message });
         }
-
-        var user = new User
-        {
-            Username = dto.Username,
-            Email = dto.Email,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password)
-        };
-
-        _context.Users.Add(user);
-        await _context.SaveChangesAsync();
-
-        var token = _tokenService.GenerateToken(user);
-
-        return Ok(new AuthResponseDto
-        {
-            Token = token,
-            Username = user.Username,
-            Email = user.Email
-        });
     }
 
     [HttpPost("login")]
     public async Task<ActionResult<AuthResponseDto>> Login(LoginDto dto)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == dto.Username);
-
-        if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
+        var user = await _userService.GetUserByUsernameAsync(dto.Username);
+        if (user is null || !await _userService.VerifyPasswordAsync(user.Id, dto.Password))
         {
             return Unauthorized(new { message = "Invalid username or password" });
         }

@@ -12,4 +12,6 @@ public class AirQualityStation
     
     public int UserId { get; set; }
     public User User { get; set; } = null!;
+    
+    public ICollection<Measurement> Measurements { get; set; } = [];
 }

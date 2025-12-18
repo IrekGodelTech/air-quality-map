@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using AirQualityMap.Api.Data;
 using AirQualityMap.Api.Services;
+using AirQualityMap.Api.Services.Contracts;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +41,9 @@ builder.Services.AddAuthorization();
 
 // Register services
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IStationService, StationService>();
+builder.Services.AddScoped<IMeasurementService, MeasurementService>();
 
 // Configure CORS
 builder.Services.AddCors(options =>

@@ -1,22 +1,23 @@
 ﻿using AirQualityMap.Api.Controllers;
-using AirQualityMap.Api.Data;
 using AirQualityMap.Api.DTOs;
 using AirQualityMap.Api.Models;
+using AirQualityMap.Api.Services.Contracts;
 using AirQualityMap.Api.Tests.Fixtures;
 using Microsoft.AspNetCore.Mvc;
+using Moq;
 using System.Security.Claims;
 
 namespace AirQualityMap.Api.Tests.Controllers;
 
 public class StationsControllerTests
 {
-    private readonly AppDbContext _dbContext;
+    private readonly Mock<IStationService> _mockStationService;
     private readonly StationsController _stationsController;
 
     public StationsControllerTests()
     {
-        _dbContext = InMemoryDbContextFactory.CreateDbContext();
-        _stationsController = new StationsController(_dbContext);
+        _mockStationService = new Mock<IStationService>();
+        _stationsController = new StationsController(_mockStationService.Object);
     }
 
     private void SetupUserContext(int userId)
@@ -37,28 +38,40 @@ public class StationsControllerTests
     [Fact]
     public async Task GetStations_ReturnsAllStations()
     {
-        var user = TestDataBuilder.CreateTestUser(id: 1);
-        _dbContext.Users.Add(user);
         var station1 = TestDataBuilder.CreateTestStation(id: 1, name: "Station 1", userId: 1);
         var station2 = TestDataBuilder.CreateTestStation(id: 2, name: "Station 2", userId: 1);
-        _dbContext.Stations.AddRange(station1, station2);
-        await _dbContext.SaveChangesAsync();
+        var stations = new[] { 
+            new StationDto { Id = 1, Name = "Station 1", Description = station1.Description, Latitude = station1.Latitude, Longitude = station1.Longitude, MeasurementEndpoint = station1.MeasurementEndpoint, CreatedAt = station1.CreatedAt },
+            new StationDto { Id = 2, Name = "Station 2", Description = station2.Description, Latitude = station2.Latitude, Longitude = station2.Longitude, MeasurementEndpoint = station2.MeasurementEndpoint, CreatedAt = station2.CreatedAt }
+        };
+
+        _mockStationService.Setup(s => s.GetAllStationsAsync())
+            .ReturnsAsync(stations);
 
         var result = await _stationsController.GetStations();
 
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
-        var stations = Assert.IsAssignableFrom<IEnumerable<StationDto>>(okResult.Value);
-        Assert.Equal(2, stations.Count());
+        var returnedStations = Assert.IsAssignableFrom<IEnumerable<StationDto>>(okResult.Value);
+        Assert.Equal(2, returnedStations.Count());
     }
 
     [Fact]
     public async Task GetStation_WithValidId_ReturnsStation()
     {
-        var user = TestDataBuilder.CreateTestUser(id: 1);
-        _dbContext.Users.Add(user);
         var station = TestDataBuilder.CreateTestStation(id: 42, name: "Test Station", userId: 1);
-        _dbContext.Stations.Add(station);
-        await _dbContext.SaveChangesAsync();
+        var stationDto = new StationDto
+        {
+            Id = 42,
+            Name = "Test Station",
+            Description = station.Description,
+            Latitude = station.Latitude,
+            Longitude = station.Longitude,
+            MeasurementEndpoint = station.MeasurementEndpoint,
+            CreatedAt = station.CreatedAt
+        };
+
+        _mockStationService.Setup(s => s.GetStationByIdAsync(42))
+            .ReturnsAsync(stationDto);
 
         var result = await _stationsController.GetStation(42);
 
@@ -71,9 +84,6 @@ public class StationsControllerTests
     [Fact]
     public async Task CreateStation_WithValidData_CreatesStation()
     {
-        var user = TestDataBuilder.CreateTestUser(id: 1);
-        _dbContext.Users.Add(user);
-        await _dbContext.SaveChangesAsync();
         SetupUserContext(1);
 
         var stationDto = new StationDto
@@ -85,6 +95,20 @@ public class StationsControllerTests
             MeasurementEndpoint = "https://api.example.com/measurements"
         };
 
+        var createdDto = new StationDto
+        {
+            Id = 1,
+            Name = "New Station",
+            Description = "A new monitoring station",
+            Latitude = 40.7128,
+            Longitude = -74.0060,
+            MeasurementEndpoint = "https://api.example.com/measurements",
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _mockStationService.Setup(s => s.CreateStationAsync(stationDto, 1))
+            .ReturnsAsync(createdDto);
+
         var result = await _stationsController.CreateStation(stationDto);
 
         var createdResult = Assert.IsType<CreatedAtActionResult>(result.Result);
@@ -94,11 +118,6 @@ public class StationsControllerTests
     [Fact]
     public async Task UpdateStation_WithValidDataAndOwner_UpdatesStation()
     {
-        var user = TestDataBuilder.CreateTestUser(id: 1);
-        _dbContext.Users.Add(user);
-        var station = TestDataBuilder.CreateTestStation(id: 1, name: "Original Name", userId: 1);
-        _dbContext.Stations.Add(station);
-        await _dbContext.SaveChangesAsync();
         SetupUserContext(1);
 
         var updateDto = new StationDto
@@ -110,6 +129,20 @@ public class StationsControllerTests
             MeasurementEndpoint = "https://api.example.com/updated"
         };
 
+        var updatedDto = new StationDto
+        {
+            Id = 1,
+            Name = "Updated Name",
+            Description = "Updated Description",
+            Latitude = 41.0000,
+            Longitude = -75.0000,
+            MeasurementEndpoint = "https://api.example.com/updated",
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _mockStationService.Setup(s => s.UpdateStationAsync(1, updateDto, 1))
+            .ReturnsAsync(updatedDto);
+
         var result = await _stationsController.UpdateStation(1, updateDto);
 
         Assert.IsType<NoContentResult>(result);
@@ -118,12 +151,10 @@ public class StationsControllerTests
     [Fact]
     public async Task DeleteStation_WithValidIdAndOwner_DeletesStation()
     {
-        var user = TestDataBuilder.CreateTestUser(id: 1);
-        _dbContext.Users.Add(user);
-        var station = TestDataBuilder.CreateTestStation(id: 1, userId: 1);
-        _dbContext.Stations.Add(station);
-        await _dbContext.SaveChangesAsync();
         SetupUserContext(1);
+
+        _mockStationService.Setup(s => s.DeleteStationAsync(1, 1))
+            .ReturnsAsync(true);
 
         var result = await _stationsController.DeleteStation(1);
 
@@ -133,12 +164,10 @@ public class StationsControllerTests
     [Fact]
     public async Task DeleteStation_WithDifferentOwner_ReturnsForbid()
     {
-        var user = TestDataBuilder.CreateTestUser(id: 1);
-        _dbContext.Users.Add(user);
-        var station = TestDataBuilder.CreateTestStation(id: 1, userId: 1);
-        _dbContext.Stations.Add(station);
-        await _dbContext.SaveChangesAsync();
         SetupUserContext(2);
+
+        _mockStationService.Setup(s => s.DeleteStationAsync(1, 2))
+            .ReturnsAsync(false);
 
         var result = await _stationsController.DeleteStation(1);
 

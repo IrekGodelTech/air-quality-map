@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using AirQualityMap.Api.Models;
+using AirQualityMap.Api.Services.Contracts;
 
 namespace AirQualityMap.Api.Services;
 
