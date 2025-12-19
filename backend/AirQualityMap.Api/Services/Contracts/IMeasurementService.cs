@@ -13,6 +13,11 @@ public interface IMeasurementService
     Task<IEnumerable<MeasurementDto>> GetMeasurementsByStationAsync(int stationId);
     
     /// <summary>
+    /// Retrieves the most recent measurement for a specific station.
+    /// </summary>
+    Task<MeasurementDto?> GetLastMeasurementByStationAsync(int stationId);
+    
+    /// <summary>
     /// Retrieves a specific measurement by ID.
     /// </summary>
     Task<MeasurementDto?> GetMeasurementByIdAsync(int id);

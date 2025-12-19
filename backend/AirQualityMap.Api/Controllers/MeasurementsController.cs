@@ -23,6 +23,18 @@ public class MeasurementsController : ControllerBase
         return Ok(measurements);
     }
 
+    [HttpGet("station/{stationId}/last")]
+    public async Task<ActionResult<MeasurementDto>> GetLastMeasurementByStation(int stationId)
+    {
+        var measurement = await _measurementService.GetLastMeasurementByStationAsync(stationId);
+        if (measurement is null)
+        {
+            return NotFound(new { message = $"No measurements found for station {stationId}" });
+        }
+
+        return Ok(measurement);
+    }
+
     [HttpGet("{id}")]
     public async Task<ActionResult<MeasurementDto>> GetMeasurement(int id)
     {

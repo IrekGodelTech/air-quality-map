@@ -29,6 +29,16 @@ public class MeasurementService : IMeasurementService
         return measurements;
     }
 
+    public async Task<MeasurementDto?> GetLastMeasurementByStationAsync(int stationId)
+    {
+        var measurement = await _context.Measurements
+            .Where(m => m.StationId == stationId)
+            .OrderByDescending(m => m.CreatedAt)
+            .FirstOrDefaultAsync();
+
+        return measurement is null ? null : MapToDto(measurement);
+    }
+
     public async Task<MeasurementDto?> GetMeasurementByIdAsync(int id)
     {
         var measurement = await _context.Measurements.FindAsync(id);
