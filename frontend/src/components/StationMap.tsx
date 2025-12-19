@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import type { Station } from '../types';
+import type { Station, Measurement } from '../types';
+import { measurementsApi } from '../services/api';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -20,10 +21,51 @@ interface StationMapProps {
   stations: Station[];
 }
 
+interface StationWithLastMeasurement extends Station {
+  lastMeasurement?: Measurement;
+}
+
 const StationMap: React.FC<StationMapProps> = ({ stations }) => {
-  const center: [number, number] = stations.length > 0 
-    ? [stations[0].latitude, stations[0].longitude]
+  const [stationsWithMeasurements, setStationsWithMeasurements] = useState<StationWithLastMeasurement[]>(stations);
+  const [loadingMeasurements, setLoadingMeasurements] = useState(true);
+
+  useEffect(() => {
+    const loadMeasurements = async () => {
+      try {
+        setLoadingMeasurements(true);
+        const stationsData = await Promise.all(
+          stations.map(async (station) => {
+            try {
+              const measurements = await measurementsApi.getByStationId(station.id);
+              const lastMeasurement = measurements.length > 0 ? measurements[0] : undefined;
+              return { ...station, lastMeasurement };
+            } catch (err) {
+              return station;
+            }
+          })
+        );
+        setStationsWithMeasurements(stationsData);
+      } finally {
+        setLoadingMeasurements(false);
+      }
+    };
+
+    if (stations.length > 0) {
+      loadMeasurements();
+    }
+  }, [stations]);
+
+  const center: [number, number] = stationsWithMeasurements.length > 0 
+    ? [stationsWithMeasurements[0].latitude, stationsWithMeasurements[0].longitude]
     : [51.505, -0.09]; // Default to London
+
+  const formatMeasurement = (measurement: Measurement | undefined) => {
+    if (!measurement || measurement.pm25 === undefined || measurement.pm10 === undefined) {
+      return 'No measurements available';
+    }
+    const temp = measurement.temperature !== undefined ? ` | Temp: ${measurement.temperature.toFixed(1)}°C` : '';
+    return `PM2.5: ${measurement.pm25.toFixed(1)} | PM10: ${measurement.pm10.toFixed(1)}${temp}`;
+  };
 
   return (
     <MapContainer 
@@ -35,7 +77,7 @@ const StationMap: React.FC<StationMapProps> = ({ stations }) => {
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
-      {stations.map((station) => (
+      {stationsWithMeasurements.map((station) => (
         <Marker 
           key={station.id} 
           position={[station.latitude, station.longitude]}
@@ -44,9 +86,17 @@ const StationMap: React.FC<StationMapProps> = ({ stations }) => {
             <div>
               <h3>{station.name}</h3>
               <p>{station.description}</p>
-              <a href={station.measurementEndpoint} target="_blank" rel="noopener noreferrer">
-                View Measurements
-              </a>
+              <p style={{ marginTop: '10px', fontSize: '0.9em', fontWeight: 'bold' }}>
+                Last Measurement:
+              </p>
+              <p style={{ margin: '5px 0', fontSize: '0.85em' }}>
+                {formatMeasurement(station.lastMeasurement)}
+              </p>
+              {station.lastMeasurement?.createdAt && (
+                <p style={{ margin: '5px 0', fontSize: '0.8em', color: '#666' }}>
+                  {new Date(station.lastMeasurement.createdAt).toLocaleString()}
+                </p>
+              )}
             </div>
           </Popup>
         </Marker>

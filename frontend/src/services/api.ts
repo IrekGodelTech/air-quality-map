@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { LoginData, RegisterData, AuthResponse, Station } from '../types';
+import type { LoginData, RegisterData, AuthResponse, Station, Measurement } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -55,6 +55,39 @@ export const stationsApi = {
   
   delete: async (id: number): Promise<void> => {
     await api.delete(`/stations/${id}`);
+  },
+};
+
+// Measurements API
+export const measurementsApi = {
+  getByStationId: async (stationId: number): Promise<Measurement[]> => {
+    const response = await api.get<any[]>(`/measurements/station/${stationId}`);
+    // Convert from backend format to frontend camelCase
+    // Backend now returns: id, createdAt, PM25, PM10, temperature, stationId
+    return response.data.map((m: any) => ({
+      id: m.id,
+      createdAt: m.createdAt,
+      pm25: m.PM25 !== undefined ? m.PM25 : undefined,
+      pm10: m.PM10 !== undefined ? m.PM10 : undefined,
+      temperature: m.temperature !== undefined ? m.temperature : undefined,
+      stationId: m.stationId,
+    }));
+  },
+
+  getLastByStationId: async (stationId: number): Promise<Measurement | null> => {
+    const response = await api.get<any>(`/measurements/station/${stationId}/last`);
+    if (!response.data) {
+      return null;
+    }
+    const m = response.data;
+    return {
+      id: m.id,
+      createdAt: m.createdAt,
+      pm25: m.PM25 !== undefined ? m.PM25 : undefined,
+      pm10: m.PM10 !== undefined ? m.PM10 : undefined,
+      temperature: m.temperature !== undefined ? m.temperature : undefined,
+      stationId: m.stationId,
+    };
   },
 };
 

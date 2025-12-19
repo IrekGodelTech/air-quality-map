@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useNavigate } from 'react-router-dom';
-import type { Station } from '../types';
+import type { Station, Measurement } from '../types';
 import { stationsApi } from '../services/api';
 import StationTable from '../components/StationTable';
 import StationMap from '../components/StationMap';
 import StationForm from '../components/StationForm';
+import MeasurementDetailsView from '../components/MeasurementDetailsView';
+import { ErrorBoundary } from '../components/ErrorBoundary';
 
 const DashboardPage: React.FC = () => {
   const [stations, setStations] = useState<Station[]>([]);
@@ -14,6 +16,8 @@ const DashboardPage: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingStation, setEditingStation] = useState<Station | null>(null);
   const [error, setError] = useState('');
+  const [selectedStationForMeasurements, setSelectedStationForMeasurements] = useState<Station | null>(null);
+  const [measurements, setMeasurements] = useState<Measurement[]>([]);
   const { user, isAuthenticated, logout } = useAuth();
   const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
@@ -66,6 +70,16 @@ const DashboardPage: React.FC = () => {
     setShowForm(true);
   };
 
+  const handleViewMeasurements = (station: Station, meas: Measurement[]) => {
+    setSelectedStationForMeasurements(station);
+    setMeasurements(meas);
+  };
+
+  const handleCloseMeasurements = () => {
+    setSelectedStationForMeasurements(null);
+    setMeasurements([]);
+  };
+
   const handleAddNewStation = () => {
     setEditingStation(null);
     setShowForm(true);
@@ -77,7 +91,8 @@ const DashboardPage: React.FC = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: 'var(--bg-color)' }}>
+    <ErrorBoundary>
+      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: 'var(--bg-color)' }}>
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px', borderBottom: '1px solid var(--border-color)' }}>
         <h1>Air Quality Stations</h1>
         <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
@@ -167,6 +182,7 @@ const DashboardPage: React.FC = () => {
               stations={stations}
               onEdit={handleEditStation}
               onDelete={handleDeleteStation}
+              onViewMeasurements={handleViewMeasurements}
               isAuthenticated={isAuthenticated}
             />
           </div>
@@ -175,8 +191,17 @@ const DashboardPage: React.FC = () => {
             <StationMap stations={stations} />
           </div>
         )}
+
+        {selectedStationForMeasurements && (
+          <MeasurementDetailsView
+            station={selectedStationForMeasurements}
+            measurements={measurements}
+            onClose={handleCloseMeasurements}
+          />
+        )}
       </main>
     </div>
+    </ErrorBoundary>
   );
 };
 
