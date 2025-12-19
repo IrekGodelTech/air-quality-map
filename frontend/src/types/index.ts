@@ -21,11 +21,20 @@ export interface RegisterData {
 }
 
 export interface Station {
-  id?: number;
+  id: number;
   name: string;
   description: string;
   latitude: number;
   longitude: number;
   measurementEndpoint: string;
-  createdAt?: string;
+  createdAt: string;
+}
+
+export interface Measurement {
+  id: number;
+  createdAt: string;
+  pm25: number;
+  pm10: number;
+  temperature?: number | undefined;
+  stationId: number;
 }

@@ -12,12 +12,12 @@ public class Measurement
     /// <summary>
     /// PM2.5 particulate matter concentration in µg/m³.
     /// </summary>
-    public float PM25 { get; set; }
+    public int PM25 { get; set; }
     
     /// <summary>
     /// PM10 particulate matter concentration in µg/m³.
     /// </summary>
-    public float PM10 { get; set; }
+    public int PM10 { get; set; }
     
     /// <summary>
     /// Temperature in Celsius. Can be null if not available.

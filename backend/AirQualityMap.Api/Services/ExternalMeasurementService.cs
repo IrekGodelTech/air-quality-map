@@ -139,16 +139,12 @@ public class ExternalMeasurementService : IExternalMeasurementService
                     return null;
                 }
 
-                var pm25 = ParseFloatField(field2Element);
-                var pm10 = ParseFloatField(field3Element);
-                var temperature = ParseFloatField(field4Element);
-
                 return new ExternalMeasurementData
                 {
                     CreatedAt = createdAt,
-                    PM25 = pm25,
-                    PM10 = pm10,
-                    Temperature = temperature
+                    PM25 = ParseFieldAsInt(field2Element),
+                    PM10 = ParseFieldAsInt(field3Element),
+                    Temperature = ParseFieldAsFloat(field4Element)
                 };
             }
         }
@@ -160,17 +156,26 @@ public class ExternalMeasurementService : IExternalMeasurementService
     }
 
     /// <summary>
-    /// Parses a JSON element as a float value.
+    /// Parses a JSON element as an integer value, handling both string and numeric representations.
     /// </summary>
-    private static float ParseFloatField(JsonElement element)
-    {
-        return element.ValueKind switch
+    private static int ParseFieldAsInt(JsonElement element)
+        => element.ValueKind switch
         {
-            JsonValueKind.String => float.TryParse(element.GetString(), out var floatValue) ? floatValue : 0f,
+            JsonValueKind.String => float.TryParse(element.GetString(), out var value) ? (int)value : 0,
+            JsonValueKind.Number => (int)element.GetSingle(),
+            _ => 0
+        };
+
+    /// <summary>
+    /// Parses a JSON element as a float value, handling both string and numeric representations.
+    /// </summary>
+    private static float ParseFieldAsFloat(JsonElement element)
+        => element.ValueKind switch
+        {
+            JsonValueKind.String => float.TryParse(element.GetString(), out var value) ? value : 0f,
             JsonValueKind.Number => element.GetSingle(),
             _ => 0f
         };
-    }
 
     /// <summary>
     /// Internal data class for holding parsed external measurement data.
@@ -178,8 +183,8 @@ public class ExternalMeasurementService : IExternalMeasurementService
     private class ExternalMeasurementData
     {
         public required DateTime CreatedAt { get; set; }
-        public required float PM25 { get; set; }
-        public required float PM10 { get; set; }
+        public required int PM25 { get; set; }
+        public required int PM10 { get; set; }
         public float? Temperature { get; set; }
     }
 }
