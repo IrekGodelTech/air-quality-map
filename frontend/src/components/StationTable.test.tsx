@@ -13,13 +13,16 @@ describe("StationTable Component", () => {
         stations={mockStations}
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
+        onViewMeasurements={vi.fn()}
+        isAuthenticated={false}
       />
     );
 
     expect(screen.getByText(/name/i)).toBeInTheDocument();
     expect(screen.getByText(/description/i)).toBeInTheDocument();
     expect(screen.getByText(/coordinates/i)).toBeInTheDocument();
-    expect(screen.getByText(/endpoint/i)).toBeInTheDocument();
+    expect(screen.getByText(/last measurement/i)).toBeInTheDocument();
+    expect(screen.getByText(/measurements/i)).toBeInTheDocument();
   });
 
   it("renders stations data in table rows", () => {
@@ -28,6 +31,8 @@ describe("StationTable Component", () => {
         stations={mockStations}
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
+        onViewMeasurements={vi.fn()}
+        isAuthenticated={false}
       />
     );
 
@@ -43,12 +48,13 @@ describe("StationTable Component", () => {
         stations={mockStations}
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
+        onViewMeasurements={vi.fn()}
+        isAuthenticated={false}
       />
     );
 
-    const links = screen.getAllByRole("link", { name: /link/i });
-    expect(links.length).toBe(mockStations.length);
-    expect(links[0]).toHaveAttribute("href", mockStations[0].measurementEndpoint);
+    const buttons = screen.getAllByRole("button", { name: /view more/i });
+    expect(buttons.length).toBe(mockStations.length);
   });
 
   it("renders empty state when no stations provided", () => {
@@ -57,6 +63,8 @@ describe("StationTable Component", () => {
         stations={[]}
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
+        onViewMeasurements={vi.fn()}
+        isAuthenticated={false}
       />
     );
 
@@ -71,6 +79,8 @@ describe("StationTable Component", () => {
         stations={mockStations}
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
+        onViewMeasurements={vi.fn()}
+        isAuthenticated={false}
       />
     );
 
