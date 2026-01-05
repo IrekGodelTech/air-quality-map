@@ -1,10 +1,68 @@
-name: Build Backend
+name: Backend CI/CD Pipeline
 
 on: [push, pull_request]
 
 jobs:
-  build:
+  lint-and-format:
+    name: Lint and Format Check
     runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: cd backend/AirQualityMap.Api && dotnet restore
+
+      - name: Check code formatting
+        run: cd backend/AirQualityMap.Api && dotnet format --verify-no-changes --no-restore
+        continue-on-error: true
+
+      - name: Check for build warnings
+        run: cd backend/AirQualityMap.Api && dotnet build --no-restore --configuration Release -p:TreatWarningsAsErrors=false
+
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    needs: lint-and-format
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: airqualitydb_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: cd backend/AirQualityMap.Api.Tests && dotnet restore
+
+      - name: Run tests
+        run: cd backend/AirQualityMap.Api.Tests && dotnet test --verbosity normal --no-restore
+
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+    needs: test
 
     steps:
       - uses: actions/checkout@v3
@@ -20,5 +78,16 @@ jobs:
       - name: Build
         run: cd backend/AirQualityMap.Api && dotnet build --no-restore --configuration Release
 
-      - name: Check for warnings
-        run: cd backend/AirQualityMap.Api && dotnet build --no-restore --configuration Release -p:TreatWarningsAsErrors=false
+  build-docker:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build Docker image
+        run: docker build -t air-quality-map-backend:latest ./backend/AirQualityMap.Api
