@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Station, Measurement } from '../types';
+import { formatDateTime } from '../utils/dateUtils';
 
 interface MeasurementDetailsViewProps {
   station: Station;
@@ -82,7 +83,7 @@ const MeasurementDetailsView: React.FC<MeasurementDetailsViewProps> = ({
               {sortedMeasurements.map((measurement) => (
                 <tr key={measurement.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
                   <td style={{ padding: '10px', border: '1px solid var(--border-color)' }}>
-                    {new Date(measurement.createdAt).toLocaleString()}
+                    {formatDateTime(measurement.createdAt)}
                   </td>
                   <td style={{ padding: '10px', textAlign: 'right', border: '1px solid var(--border-color)' }}>
                     {measurement.pm25 !== undefined ? `${measurement.pm25.toFixed(2)} µg/m³` : '-'}

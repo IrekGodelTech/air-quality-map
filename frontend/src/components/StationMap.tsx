@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import type { Station, Measurement } from '../types';
 import { measurementsApi } from '../services/api';
+import { formatDateTime } from '../utils/dateUtils';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -61,18 +62,29 @@ const StationMap: React.FC<StationMapProps> = ({ stations }) => {
 
   const formatMeasurement = (measurement: Measurement | undefined) => {
     if (!measurement || measurement.pm25 === undefined || measurement.pm10 === undefined) {
-      return 'No measurements available';
+      return <div>No measurements available</div>;
     }
     
-    const pm25Line = `PM2.5           ${measurement.pm25} µg/m³`;
-    const pm10Line = `PM10            ${measurement.pm10} µg/m³`;
-    const tempLine = measurement.temperature !== undefined 
-      ? `Temperature     ${measurement.temperature.toFixed(1)}°C` 
-      : '';
-    
-    return tempLine 
-      ? `${pm25Line}\n${pm10Line}\n${tempLine}`
-      : `${pm25Line}\n${pm10Line}`;
+    return (
+      <table style={{ borderCollapse: 'collapse', fontSize: '0.85em', width: '100%' }}>
+        <tbody>
+          <tr>
+            <td style={{ border: 'none', padding: '2px 8px 2px 0', textAlign: 'left' }}>PM2.5</td>
+            <td style={{ border: 'none', padding: '2px 0', textAlign: 'right' }}>{measurement.pm25} µg/m³</td>
+          </tr>
+          <tr>
+            <td style={{ border: 'none', padding: '2px 8px 2px 0', textAlign: 'left' }}>PM10</td>
+            <td style={{ border: 'none', padding: '2px 0', textAlign: 'right' }}>{measurement.pm10} µg/m³</td>
+          </tr>
+          {measurement.temperature !== undefined && (
+            <tr>
+              <td style={{ border: 'none', padding: '2px 8px 2px 0', textAlign: 'left' }}>Temperature</td>
+              <td style={{ border: 'none', padding: '2px 0', textAlign: 'right' }}>{measurement.temperature.toFixed(1)}°C</td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    );
   };
 
   return (
@@ -97,12 +109,12 @@ const StationMap: React.FC<StationMapProps> = ({ stations }) => {
               <p style={{ marginTop: '10px', fontSize: '0.9em', fontWeight: 'bold' }}>
                 Last Measurement:
               </p>
-              <pre style={{ margin: '5px 0', fontSize: '0.85em', fontFamily: 'monospace', lineHeight: '1.6' }}>
+              <div style={{ margin: '5px 0' }}>
                 {formatMeasurement(station.lastMeasurement)}
-              </pre>
+              </div>
               {station.lastMeasurement?.createdAt && (
                 <p style={{ margin: '5px 0', fontSize: '0.8em', color: '#666' }}>
-                  {new Date(station.lastMeasurement.createdAt).toLocaleString()}
+                  {formatDateTime(station.lastMeasurement.createdAt)}
                 </p>
               )}
             </div>
