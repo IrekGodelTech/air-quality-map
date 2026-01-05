@@ -28,10 +28,10 @@ public class DatabaseSeeder
         if (await IsDatabaseEmptyAsync())
         {
             _logger.LogInformation("Database is empty. Starting seed data initialization...");
-            
+
             await SeedAdminUserAsync();
             await SeedSampleStationAsync();
-            
+
             _logger.LogInformation("Seed data initialization completed successfully.");
         }
         else
