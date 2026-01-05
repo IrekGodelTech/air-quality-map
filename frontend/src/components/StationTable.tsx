@@ -94,27 +94,27 @@ const StationTable: React.FC<StationTableProps> = ({
   return (
     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
       <thead>
-        <tr style={{ backgroundColor: '#f0f0f0' }}>
-          <th style={{ padding: '10px', textAlign: 'left', border: '1px solid #ddd' }}>Name</th>
-          <th style={{ padding: '10px', textAlign: 'left', border: '1px solid #ddd' }}>Description</th>
-          <th style={{ padding: '10px', textAlign: 'left', border: '1px solid #ddd' }}>Coordinates</th>
-          <th style={{ padding: '10px', textAlign: 'left', border: '1px solid #ddd' }}>Last Measurement</th>
-          <th style={{ padding: '10px', textAlign: 'left', border: '1px solid #ddd' }}>Measurements</th>
-          {isAuthenticated && <th style={{ padding: '10px', textAlign: 'left', border: '1px solid #ddd' }}>Actions</th>}
+        <tr style={{ backgroundColor: 'var(--header-bg)' }}>
+          <th style={{ padding: '10px', textAlign: 'left', border: '1px solid var(--border-color, #ddd)' }}>Name</th>
+          <th style={{ padding: '10px', textAlign: 'left', border: '1px solid var(--border-color, #ddd)' }}>Description</th>
+          <th style={{ padding: '10px', textAlign: 'left', border: '1px solid var(--border-color, #ddd)' }}>Coordinates</th>
+          <th style={{ padding: '10px', textAlign: 'left', border: '1px solid var(--border-color, #ddd)' }}>Last Measurement</th>
+          <th style={{ padding: '10px', textAlign: 'left', border: '1px solid var(--border-color, #ddd)' }}>Measurements</th>
+          {isAuthenticated && <th style={{ padding: '10px', textAlign: 'left', border: '1px solid var(--border-color, #ddd)' }}>Actions</th>}
         </tr>
       </thead>
       <tbody>
         {stations.map((station) => (
-          <tr key={station.id}>
-            <td style={{ padding: '10px', border: '1px solid #ddd' }}>{station.name}</td>
-            <td style={{ padding: '10px', border: '1px solid #ddd' }}>{station.description}</td>
-            <td style={{ padding: '10px', border: '1px solid #ddd' }}>
+          <tr key={station.id} style={{ color: 'var(--text-color)' }}>
+            <td style={{ padding: '10px', border: '1px solid var(--border-color, #ddd)' }}>{station.name}</td>
+            <td style={{ padding: '10px', border: '1px solid var(--border-color, #ddd)' }}>{station.description}</td>
+            <td style={{ padding: '10px', border: '1px solid var(--border-color, #ddd)' }}>
               {station.latitude.toFixed(4)}, {station.longitude.toFixed(4)}
             </td>
-            <td style={{ padding: '10px', border: '1px solid #ddd', fontSize: '0.85em' }}>
+            <td style={{ padding: '10px', border: '1px solid var(--border-color, #ddd)', fontSize: '0.85em' }}>
               {loadingLastMeasurements ? 'Loading...' : formatMeasurement(getLastMeasurement(station))}
             </td>
-            <td style={{ padding: '10px', border: '1px solid #ddd' }}>
+            <td style={{ padding: '10px', border: '1px solid var(--border-color, #ddd)' }}>
               <button
                 onClick={() => handleViewMore(station)}
                 disabled={loadingStationId === station.id}
@@ -132,7 +132,7 @@ const StationTable: React.FC<StationTableProps> = ({
               </button>
             </td>
             {isAuthenticated && (
-              <td style={{ padding: '10px', border: '1px solid #ddd' }}>
+              <td style={{ padding: '10px', border: '1px solid var(--border-color, #ddd)' }}>
                 <button 
                   onClick={() => onEdit(station)}
                   style={{ marginRight: '5px', padding: '5px 10px' }}

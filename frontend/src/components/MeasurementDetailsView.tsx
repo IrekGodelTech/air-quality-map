@@ -121,7 +121,7 @@ const MeasurementDetailsView: React.FC<MeasurementDetailsViewProps> = ({
             
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
-                <tr style={{ backgroundColor: '#f0f0f0', color: 'var(--text-color)' }}>
+                <tr style={{ backgroundColor: 'var(--header-bg)', color: 'var(--text-color)' }}>
                   <th style={{ padding: '10px', textAlign: 'left', border: '1px solid var(--border-color)' }}>Date & Time</th>
                   <th style={{ padding: '10px', textAlign: 'right', border: '1px solid var(--border-color)' }}>PM2.5</th>
                   <th style={{ padding: '10px', textAlign: 'right', border: '1px solid var(--border-color)' }}>PM10</th>
