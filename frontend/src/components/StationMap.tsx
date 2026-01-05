@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import type { Station, Measurement } from '../types';
 import { measurementsApi } from '../services/api';
 import { formatDateTime } from '../utils/dateUtils';
+import { useTheme } from '../context/ThemeContext';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -27,6 +28,7 @@ interface StationWithLastMeasurement extends Station {
 }
 
 const StationMap: React.FC<StationMapProps> = ({ stations }) => {
+  const { isDark } = useTheme();
   const [stationsWithMeasurements, setStationsWithMeasurements] = useState<StationWithLastMeasurement[]>(stations);
 
   useEffect(() => {
@@ -56,24 +58,26 @@ const StationMap: React.FC<StationMapProps> = ({ stations }) => {
 
   const formatMeasurement = (measurement: Measurement | undefined) => {
     if (!measurement || measurement.pm25 === undefined || measurement.pm10 === undefined) {
-      return <div>No measurements available</div>;
+      return <div style={{ color: isDark ? 'rgba(255, 255, 255, 0.87)' : '#213547' }}>No measurements available</div>;
     }
     
+    const textColor = isDark ? 'rgba(255, 255, 255, 0.87)' : '#213547';
+    
     return (
-      <table style={{ borderCollapse: 'collapse', fontSize: '0.85em', width: '100%' }}>
+      <table style={{ borderCollapse: 'collapse', fontSize: '0.85em', width: '100%', color: textColor }}>
         <tbody>
           <tr>
-            <td style={{ border: 'none', padding: '2px 8px 2px 0', textAlign: 'left' }}>PM2.5</td>
-            <td style={{ border: 'none', padding: '2px 0', textAlign: 'right' }}>{measurement.pm25} µg/m³</td>
+            <td style={{ border: 'none', padding: '2px 8px 2px 0', textAlign: 'left', color: textColor }}>PM2.5</td>
+            <td style={{ border: 'none', padding: '2px 0', textAlign: 'right', color: textColor }}>{measurement.pm25} µg/m³</td>
           </tr>
           <tr>
-            <td style={{ border: 'none', padding: '2px 8px 2px 0', textAlign: 'left' }}>PM10</td>
-            <td style={{ border: 'none', padding: '2px 0', textAlign: 'right' }}>{measurement.pm10} µg/m³</td>
+            <td style={{ border: 'none', padding: '2px 8px 2px 0', textAlign: 'left', color: textColor }}>PM10</td>
+            <td style={{ border: 'none', padding: '2px 0', textAlign: 'right', color: textColor }}>{measurement.pm10} µg/m³</td>
           </tr>
           {measurement.temperature !== undefined && (
             <tr>
-              <td style={{ border: 'none', padding: '2px 8px 2px 0', textAlign: 'left' }}>Temperature</td>
-              <td style={{ border: 'none', padding: '2px 0', textAlign: 'right' }}>{measurement.temperature.toFixed(1)}°C</td>
+              <td style={{ border: 'none', padding: '2px 8px 2px 0', textAlign: 'left', color: textColor }}>Temperature</td>
+              <td style={{ border: 'none', padding: '2px 0', textAlign: 'right', color: textColor }}>{measurement.temperature.toFixed(1)}°C</td>
             </tr>
           )}
         </tbody>
@@ -87,34 +91,47 @@ const StationMap: React.FC<StationMapProps> = ({ stations }) => {
       zoom={6} 
       style={{ height: '600px', width: '100%' }}
     >
-      <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      />
-      {stationsWithMeasurements.map((station) => (
-        <Marker 
-          key={station.id} 
-          position={[station.latitude, station.longitude]}
-        >
-          <Popup>
-            <div>
-              <h3>{station.name}</h3>
-              <p>{station.description}</p>
-              <p style={{ marginTop: '10px', fontSize: '0.9em', fontWeight: 'bold' }}>
-                Last Measurement:
-              </p>
-              <div style={{ margin: '5px 0' }}>
-                {formatMeasurement(station.lastMeasurement)}
-              </div>
-              {station.lastMeasurement?.createdAt && (
-                <p style={{ margin: '5px 0', fontSize: '0.8em', color: '#666' }}>
-                  {formatDateTime(station.lastMeasurement.createdAt)}
+      {isDark ? (
+        <TileLayer
+          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+        />
+      ) : (
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        />
+      )}
+      {stationsWithMeasurements.map((station) => {
+        const textColor = isDark ? 'rgba(255, 255, 255, 0.87)' : '#213547';
+        const secondaryColor = isDark ? 'rgba(255, 255, 255, 0.6)' : '#666';
+        const bgColor = isDark ? '#242424' : '#ffffff';
+        
+        return (
+          <Marker 
+            key={station.id} 
+            position={[station.latitude, station.longitude]}
+          >
+            <Popup>
+              <div style={{ color: textColor, backgroundColor: bgColor, padding: '4px' }}>
+                <h3 style={{ color: textColor, margin: '0 0 8px 0' }}>{station.name}</h3>
+                <p style={{ color: textColor, margin: '0 0 8px 0' }}>{station.description}</p>
+                <p style={{ marginTop: '10px', fontSize: '0.9em', fontWeight: 'bold', color: textColor }}>
+                  Last Measurement:
                 </p>
-              )}
-            </div>
-          </Popup>
-        </Marker>
-      ))}
+                <div style={{ margin: '5px 0' }}>
+                  {formatMeasurement(station.lastMeasurement)}
+                </div>
+                {station.lastMeasurement?.createdAt && (
+                  <p style={{ margin: '5px 0', fontSize: '0.8em', color: secondaryColor }}>
+                    {formatDateTime(station.lastMeasurement.createdAt)}
+                  </p>
+                )}
+              </div>
+            </Popup>
+          </Marker>
+        );
+      })}
     </MapContainer>
   );
 };

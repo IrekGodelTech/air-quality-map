@@ -34,3 +34,21 @@ input, textarea {
   color: var(--text-color);
   transition: background-color 0.3s ease, color 0.3s ease;
 }
+
+/* Leaflet popup dark mode styles */
+:root[data-theme="dark"] .leaflet-popup-content-wrapper {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+:root[data-theme="dark"] .leaflet-popup-tip {
+  background-color: var(--bg-color);
+}
+
+:root[data-theme="dark"] .leaflet-container a.leaflet-popup-close-button {
+  color: var(--text-color);
+}
+
+:root[data-theme="dark"] .leaflet-container a.leaflet-popup-close-button:hover {
+  color: var(--link-hover-color);
+}
