@@ -20,7 +20,6 @@ jobs:
 
       - name: Run ESLint
         run: cd frontend && npm run lint
-        continue-on-error: true
 
       - name: Run Type Check
         run: cd frontend && npx tsc --noEmit
@@ -46,7 +45,6 @@ jobs:
 
       - name: Generate coverage report
         run: cd frontend && npm test -- --coverage
-        continue-on-error: true
 
   build:
     name: Build Application
