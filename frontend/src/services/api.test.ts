@@ -2,8 +2,9 @@
 import axios from 'axios';
 import { authApi, stationsApi } from './api';
 import { mockAuthResponse, mockStations } from '../test/mock-data';
+import type { Station } from '../types';
 
-const mockedAxios = axios as any;
+const mockedAxios = axios as typeof axios & { create: () => { get: ReturnType<typeof vi.fn>; post: ReturnType<typeof vi.fn>; put: ReturnType<typeof vi.fn>; delete: ReturnType<typeof vi.fn> } };
 const mockApiInstance = mockedAxios.create();
 
 describe('API Service', () => {
@@ -69,7 +70,7 @@ describe('API Service', () => {
       };
       mockApiInstance.post.mockResolvedValue({ data: { ...newStation, id: 1 } });
 
-      const result = await stationsApi.create(newStation as any);
+      const result = await stationsApi.create(newStation as Station);
 
       expect(mockApiInstance.post).toHaveBeenCalled();
       expect(result).toEqual(expect.objectContaining(newStation));
@@ -114,8 +115,8 @@ describe('API Service', () => {
     });
 
     it('should handle 401 unauthorized errors', async () => {
-      const error = new Error('Unauthorized');
-      (error as any).response = { status: 401 };
+      const error = new Error('Unauthorized') as Error & { response: { status: number } };
+      error.response = { status: 401 };
       mockApiInstance.post.mockRejectedValue(error);
 
       await expect(authApi.login({ username: 'user', password: 'pass' })).rejects.toBeDefined();

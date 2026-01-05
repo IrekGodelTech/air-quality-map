@@ -8,19 +8,21 @@ interface StationFormProps {
 }
 
 const StationForm: React.FC<StationFormProps> = ({ station, onSave, onCancel }) => {
-  const [formData, setFormData] = useState<Station>({
+  const getInitialFormData = () => station || {
     name: '',
     description: '',
     latitude: 0,
     longitude: 0,
     measurementEndpoint: '',
-  });
+  };
 
+  const [formData, setFormData] = useState<Station>(getInitialFormData);
+
+  // Update form when station prop changes (e.g., switching from add to edit)
   useEffect(() => {
-    if (station) {
-      setFormData(station);
-    }
-  }, [station]);
+    setFormData(getInitialFormData());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [station?.id]); // Only trigger when switching between stations, not on every prop change
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;

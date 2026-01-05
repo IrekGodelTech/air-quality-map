@@ -5,7 +5,7 @@ import DashboardPage from './DashboardPage';
 import axios from 'axios';
 import { mockStations } from '../test/mock-data';
 
-const mockedAxios = axios as any;
+const mockedAxios = axios as typeof axios & { create: () => { get: ReturnType<typeof vi.fn>; post: ReturnType<typeof vi.fn>; put: ReturnType<typeof vi.fn>; delete: ReturnType<typeof vi.fn> } };
 const mockApiInstance = mockedAxios.create();
 
 describe('DashboardPage', () => {

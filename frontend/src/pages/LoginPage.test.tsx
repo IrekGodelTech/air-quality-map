@@ -4,7 +4,7 @@ import LoginPage from './LoginPage';
 import axios from 'axios';
 import { mockAuthResponse } from '../test/mock-data';
 
-const mockedAxios = axios as any;
+const mockedAxios = axios as typeof axios & { create: () => { get: ReturnType<typeof vi.fn>; post: ReturnType<typeof vi.fn>; put: ReturnType<typeof vi.fn>; delete: ReturnType<typeof vi.fn> } };
 // Get the shared mock API instance created by axios.create()
 const mockApiInstance = mockedAxios.create();
 

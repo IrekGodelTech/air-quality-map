@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useNavigate } from 'react-router-dom';
@@ -22,18 +22,20 @@ const DashboardPage: React.FC = () => {
   const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    loadStations();
-  }, []);
-
-  const loadStations = async () => {
+  const loadStations = useCallback(async () => {
     try {
       const data = await stationsApi.getAll();
       setStations(data);
-    } catch (err: any) {
+    } catch {
       setError('Failed to load stations');
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    // Load stations on mount - this is intentional data fetching in an effect
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void loadStations();
+  }, [loadStations]);
 
   const handleSaveStation = async (station: Station) => {
     try {
@@ -46,8 +48,9 @@ const DashboardPage: React.FC = () => {
       setShowForm(false);
       setEditingStation(null);
       setError('');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to save station');
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(error.response?.data?.message || 'Failed to save station');
     }
   };
 
@@ -60,8 +63,9 @@ const DashboardPage: React.FC = () => {
       await stationsApi.delete(id);
       await loadStations();
       setError('');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to delete station');
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(error.response?.data?.message || 'Failed to delete station');
     }
   };
 

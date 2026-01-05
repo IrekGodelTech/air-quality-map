@@ -40,12 +40,12 @@ vi.mock("leaflet", () => ({
 }));
 
 vi.mock("react-leaflet", () => ({
-  MapContainer: ({ children }: any) => <div data-testid="map-container">{children}</div>,
+  MapContainer: ({ children }: { children: React.ReactNode }) => <div data-testid="map-container">{children}</div>,
   TileLayer: () => <div data-testid="tile-layer" />,
-  Marker: ({ position, children }: any) => (
+  Marker: ({ position, children }: { position: [number, number]; children: React.ReactNode }) => (
     <div data-testid={`marker-${position[0]}-${position[1]}`}>{children}</div>
   ),
-  Popup: ({ children }: any) => <div data-testid="popup">{children}</div>,
+  Popup: ({ children }: { children: React.ReactNode }) => <div data-testid="popup">{children}</div>,
 }));
 
 describe("StationMap Component", () => {

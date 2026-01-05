@@ -58,13 +58,22 @@ export const stationsApi = {
   },
 };
 
+interface BackendMeasurement {
+  id: number;
+  createdAt: string;
+  PM25?: number;
+  PM10?: number;
+  temperature?: number;
+  stationId: number;
+}
+
 // Measurements API
 export const measurementsApi = {
   getByStationId: async (stationId: number): Promise<Measurement[]> => {
-    const response = await api.get<any[]>(`/measurements/station/${stationId}`);
+    const response = await api.get<BackendMeasurement[]>(`/measurements/station/${stationId}`);
     // Convert from backend format to frontend camelCase
     // Backend now returns: id, createdAt, PM25, PM10, temperature, stationId
-    return response.data.map((m: any) => ({
+    return response.data.map((m) => ({
       id: m.id,
       createdAt: m.createdAt,
       pm25: m.PM25 !== undefined ? m.PM25 : undefined,
@@ -75,7 +84,7 @@ export const measurementsApi = {
   },
 
   getLastByStationId: async (stationId: number): Promise<Measurement | null> => {
-    const response = await api.get<any>(`/measurements/station/${stationId}/last`);
+    const response = await api.get<BackendMeasurement | null>(`/measurements/station/${stationId}/last`);
     if (!response.data) {
       return null;
     }
