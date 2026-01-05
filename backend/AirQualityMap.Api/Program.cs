@@ -72,6 +72,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IStationService, StationService>();
 builder.Services.AddScoped<IMeasurementService, MeasurementService>();
 builder.Services.AddScoped<IExternalMeasurementService, ExternalMeasurementService>();
+builder.Services.AddScoped<DatabaseSeeder>();
 
 // Register HTTP client for external measurement fetching
 if (builder.Environment.IsDevelopment())
@@ -126,6 +127,10 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     dbContext.Database.Migrate();
+
+    // Seed database if empty
+    var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
+    await seeder.SeedAsync();
 }
 
 app.UseCors("AllowFrontend");
