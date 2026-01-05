@@ -204,22 +204,6 @@ const MeasurementChartModal: React.FC<MeasurementChartModalProps> = ({
             <Line data={data} options={options} />
           </div>
         )}
-
-        <div style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-          <button
-            onClick={onClose}
-            style={{
-              padding: '10px 20px',
-              backgroundColor: '#6c757d',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
-          >
-            Close
-          </button>
-        </div>
       </div>
     </div>
   );
