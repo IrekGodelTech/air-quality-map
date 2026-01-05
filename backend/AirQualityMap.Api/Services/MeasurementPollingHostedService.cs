@@ -19,7 +19,7 @@ public class MeasurementPollingHostedService : BackgroundService
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
-        
+
         // Get the polling interval from configuration, default to 3600 seconds (1 hour)
         _intervalSeconds = configuration.GetValue("MeasurementPolling:IntervalSeconds", 3600);
     }

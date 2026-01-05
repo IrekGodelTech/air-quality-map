@@ -9,21 +9,21 @@ namespace AirQualityMap.Api.DTOs;
 public class MeasurementDto
 {
     public int? Id { get; set; }
-    
+
     public DateTime? CreatedAt { get; set; }
-    
+
     [Required]
     [Range(0, int.MaxValue)]
     [JsonPropertyName("PM25")]
     public int PM25 { get; set; }
-    
+
     [Required]
     [Range(0, int.MaxValue)]
     [JsonPropertyName("PM10")]
     public int PM10 { get; set; }
-    
+
     [Range(-50, 60)]
     public float? Temperature { get; set; }
-    
+
     public int? StationId { get; set; }
 }

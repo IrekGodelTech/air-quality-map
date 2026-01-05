@@ -23,7 +23,7 @@ builder.Services.AddSwaggerGen(c =>
         Scheme = "Bearer",
         BearerFormat = "JWT"
     });
-    
+
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -116,7 +116,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    
+
     var logger = app.Services.GetRequiredService<ILogger<Program>>();
     logger.LogWarning("⚠️ Running in Development mode - SSL certificate validation is disabled for external HTTP requests. This is insecure and should never be used in production.");
 }

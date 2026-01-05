@@ -11,22 +11,22 @@ public interface IStationService
     /// Retrieves all stations.
     /// </summary>
     Task<IEnumerable<StationDto>> GetAllStationsAsync();
-    
+
     /// <summary>
     /// Retrieves a specific station by ID.
     /// </summary>
     Task<StationDto?> GetStationByIdAsync(int id);
-    
+
     /// <summary>
     /// Creates a new station for the authenticated user.
     /// </summary>
     Task<StationDto> CreateStationAsync(StationDto dto, int userId);
-    
+
     /// <summary>
     /// Updates an existing station.
     /// </summary>
     Task<StationDto?> UpdateStationAsync(int id, StationDto dto, int userId);
-    
+
     /// <summary>
     /// Deletes a station by ID.
     /// </summary>
