@@ -63,8 +63,16 @@ const StationMap: React.FC<StationMapProps> = ({ stations }) => {
     if (!measurement || measurement.pm25 === undefined || measurement.pm10 === undefined) {
       return 'No measurements available';
     }
-    const temp = measurement.temperature !== undefined ? ` | Temp: ${measurement.temperature.toFixed(1)}°C` : '';
-    return `PM2.5: ${measurement.pm25.toFixed(1)} | PM10: ${measurement.pm10.toFixed(1)}${temp}`;
+    
+    const pm25Line = `PM2.5           ${measurement.pm25} µg/m³`;
+    const pm10Line = `PM10            ${measurement.pm10} µg/m³`;
+    const tempLine = measurement.temperature !== undefined 
+      ? `Temperature     ${measurement.temperature.toFixed(1)}°C` 
+      : '';
+    
+    return tempLine 
+      ? `${pm25Line}\n${pm10Line}\n${tempLine}`
+      : `${pm25Line}\n${pm10Line}`;
   };
 
   return (
@@ -89,9 +97,9 @@ const StationMap: React.FC<StationMapProps> = ({ stations }) => {
               <p style={{ marginTop: '10px', fontSize: '0.9em', fontWeight: 'bold' }}>
                 Last Measurement:
               </p>
-              <p style={{ margin: '5px 0', fontSize: '0.85em' }}>
+              <pre style={{ margin: '5px 0', fontSize: '0.85em', fontFamily: 'monospace', lineHeight: '1.6' }}>
                 {formatMeasurement(station.lastMeasurement)}
-              </p>
+              </pre>
               {station.lastMeasurement?.createdAt && (
                 <p style={{ margin: '5px 0', fontSize: '0.8em', color: '#666' }}>
                   {new Date(station.lastMeasurement.createdAt).toLocaleString()}

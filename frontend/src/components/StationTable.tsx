@@ -88,7 +88,7 @@ const StationTable: React.FC<StationTableProps> = ({
     if (!measurement) {
       return 'No data';
     }
-    return `PM2.5: ${measurement.pm25}, PM10: ${measurement.pm10}${measurement.temperature !== undefined ? `, Temp: ${measurement.temperature.toFixed(1)}°C` : ''}`;
+    return `PM2.5: ${measurement.pm25} µg/m³, PM10: ${measurement.pm10} µg/m³${measurement.temperature !== undefined ? `, Temp: ${measurement.temperature.toFixed(1)}°C` : ''}`;
   };
 
   return (
