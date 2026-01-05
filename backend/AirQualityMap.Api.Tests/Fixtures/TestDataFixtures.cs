@@ -63,4 +63,22 @@ public static class TestDataBuilder
             CreatedAt = DateTime.UtcNow
         };
     }
+
+    public static Models.Measurement CreateTestMeasurement(
+        int id = 1,
+        int stationId = 1,
+        int pm25 = 35,
+        int pm10 = 50,
+        float? temperature = 22.5f)
+    {
+        return new Models.Measurement
+        {
+            Id = id,
+            StationId = stationId,
+            PM25 = pm25,
+            PM10 = pm10,
+            Temperature = temperature,
+            CreatedAt = DateTime.UtcNow
+        };
+    }
 }
