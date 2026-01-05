@@ -19,8 +19,7 @@ jobs:
         run: cd backend/AirQualityMap.Api && dotnet restore
 
       - name: Check code formatting
-        run: cd backend/AirQualityMap.Api && dotnet format --verify-no-changes --no-restore
-        continue-on-error: true
+        run: cd backend/AirQualityMap.Api && dotnet format --verify-no-changes
 
       - name: Check for build warnings
         run: cd backend/AirQualityMap.Api && dotnet build --no-restore --configuration Release -p:TreatWarningsAsErrors=false
