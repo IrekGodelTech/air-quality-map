@@ -19,6 +19,7 @@ A full-stack web application for managing and visualizing air quality monitoring
 - **Modern Frontend**: React + TypeScript with Vite
 - **Comprehensive Testing**: Unit tests for both frontend (Vitest) and backend (xUnit)
 - **Code Quality Tools**: ESLint for frontend linting
+- **Database Seed Data**: Automatic initialization with admin user and sample station
 - **Docker Support**: Containerized application for easy deployment
 
 ## Tech Stack
@@ -53,6 +54,7 @@ air-quality-map/
 │   │   │   ├── Contracts/       # Service interfaces
 │   │   │   ├── ExternalMeasurementService.cs  # Fetch measurements from external APIs
 │   │   │   ├── MeasurementPollingHostedService.cs  # Background polling service
+│   │   │   ├── DatabaseSeeder.cs # Initial data seeding service
 │   │   │   └── ...              # Other services
 │   │   ├── Data/                # DbContext and database configuration
 │   │   ├── Migrations/          # EF Core migrations
@@ -67,10 +69,6 @@ air-quality-map/
 │   │   │   ├── StationForm.tsx
 │   │   │   ├── StationTable.tsx
 │   │   │   ├── StationMap.tsx
-│   │   │28.0.4+ with Docker Compose v2 (recommended)
-- OR Node.js 20.19.6+ and .NET 9.0 SDK (for local development)
-
-**⚠️ IMPORTANT:** Always use `docker compose` (v2 CLI), not `docker-compose` (v1).
 │   │   │   └── ErrorBoundary.tsx
 │   │   ├── pages/               # Page components (Dashboard, Login, Register)
 │   │   ├── services/            # API client services
@@ -112,6 +110,11 @@ docker compose up --build
 - Swagger: http://localhost:5000/swagger
 - PostgreSQL: localhost:5432
 - pgAdmin: http://localhost:5050
+
+**Default Credentials:**
+On first startup, the database is automatically seeded with:
+- **Admin User**: Username: `admin`, Password: `admin`, Email: `admin@admin.com`
+- **Sample Station**: "sample-station" with real-time data from ThingSpeak API
 
 ### Running Tests with Docker
 
