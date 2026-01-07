@@ -1,6 +1,40 @@
 # Air Quality Map
 
+## Documentation for GitHub Copilot - Practical Task
+
+**⚠️ Documentation for  `GitHub Copilot - Practical Task` is placed in a separate file: [Prompt&workflow_log.md](./Copilot_course_documentation/Prompt&workflow_log.md)**
+
+## A brief description of the app
+
 A full-stack web application for managing and visualizing air quality monitoring stations. Users can register, add their own air quality stations with coordinates and measurement endpoints, and view all stations in both table and map layouts.
+
+## How to run the app
+
+1. Clone the repository:
+```bash
+git clone https://github.com/IrekGodelTech/air-quality-map.git
+cd air-quality-map
+```
+
+2. Start the application:
+```bash
+docker compose up --build
+```
+
+3. Access the frontend at: http://localhost:3000
+
+### UI Overview
+Map view:
+![Map view](./Copilot_course_documentation/Screen2_map_view.png)
+
+Table view (all stations):
+![Table view (all stations)](./Copilot_course_documentation/Screen3_table_view.png)
+
+History of measurements for a selected station:
+![History of measurements for a selected station](./Copilot_course_documentation/Screen4_measurements_history.png)
+
+Chart of temperature measurements:
+![Chart of temperature measurements](./Copilot_course_documentation/Screen5_chart.png)
 
 ## Features
 
@@ -85,7 +119,7 @@ air-quality-map/
 └── docker-compose.test.yml      # Test environment configuration
 ```
 
-## Getting Started
+## Development Setup - full description
 
 ### Prerequisites
 - Docker and Docker Compose (recommended)
